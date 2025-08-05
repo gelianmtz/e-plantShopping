@@ -307,6 +307,24 @@ function ProductList({ onHomeClick }) {
     }));
   };
 
+  useEffect(() => {
+    // Create a set of names currently in the cart
+    const cartNames = new Set(cartItems.map(item => item.name));
+    setAddedToCart(prevState => {
+      const updated = { ...prevState };
+      Object.keys(updated).forEach(name => {
+        if (!cartNames.has(name)) {
+          updated[name] = false;
+        }
+      });
+      // Add any new items from cart
+      cartNames.forEach(name => {
+        updated[name] = true;
+      });
+      return updated;
+    });
+  }, [cartItems]);
+
   return (
     <div>
       <div className="navbar" style={styleObj}>
@@ -411,10 +429,15 @@ function ProductList({ onHomeClick }) {
                         <div className="product-cost">${plant.cost}</div>{' '}
                         {/* Display plant cost */}
                         <button
-                          className="product-button"
-                          onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
+                          className={`product-button${
+                            addedToCart[plant.name] ? ' added-to-cart' : ''
+                          }`}
+                          onClick={() => handleAddToCart(plant)}
+                          disabled={!!addedToCart[plant.name]}
                         >
-                          Add to Cart
+                          {addedToCart[plant.name]
+                            ? 'Added to Cart'
+                            : 'Add to Cart'}
                         </button>
                       </div>
                     )
